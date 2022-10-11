@@ -23,15 +23,8 @@ public class StudentPlayer extends Player{
         }
 
         public algResult max(algResult in, int collum){
-            if(this.score > in.score)
+            if(this.score >= in.score)
                 return this;
-            if(this.score == in.score)
-            {
-                if(closerToMiddle(this.collum, collum))
-                    return this;
-                else
-                    return new algResult(collum, in.score);
-            }
             return new algResult(collum, in.score);
         }
         public int max(int in){
@@ -41,15 +34,8 @@ public class StudentPlayer extends Player{
         }
 
         public algResult min(algResult in, int collum){
-            if(this.score < in.score)
+            if(this.score <= in.score)
                 return this;
-            if(this.score == in.score)
-            {
-                if(closerToMiddle(this.collum, collum))
-                    return this;
-                else
-                    return new algResult(collum, in.score);
-            }
             return new algResult(collum, in.score);
         }
         public int min(int in){
