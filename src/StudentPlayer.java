@@ -1,15 +1,61 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class StudentPlayer extends Player{
 
-    public class algResult{
+    public static final int MAX_DEPTH = 12;
+
+    public class TranspositionTable{
+        public int[][] table = new int[7][6];
+        public int score;
+
+        public TranspositionTable(TranspositionTable in){
+            this.score = in.score;
+            this.table = in.table.clone();
+        }
+
+        public void Put(int collum, int player){
+            for(int i = 0; i < 7; i++)
+            {
+                if(table[collum][i] == 0)
+                {
+                    table[collum][i] = player;
+                    return;
+                }
+            }
+        }
+
+        public boolean Equals(TranspositionTable in){
+            for(int i = 0; i < 7; i++)
+            {
+                for(int j = 0; j < 6; j++)
+                {
+                    if(this.table[i][j] != in.table[i][j])
+                    {
+                        return false;
+                    }
+                    if(this.table[i][j] == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    public class AlgResult {
         public int collum;
         public int score;
 
-        public algResult(int c, int s){
+        public AlgResult(int c, int s){
             collum = c;
             score = s;
         }
 
-        public algResult(int c, Board b, int playerindex){
+        public AlgResult(int c, Board b, int playerindex){
             collum = c;
             score = -1;
             if(b.getWinner() < 1)
@@ -19,10 +65,10 @@ public class StudentPlayer extends Player{
         }
 
         public boolean closerToMiddle(int a, int b){
-            return Math.abs(3 - a) <= Math.abs(3 - b);
+            return Math.abs(0 - a) <= Math.abs(0 - b);
         }
 
-        public algResult max(algResult in, int collum){
+        public AlgResult max(AlgResult in, int collum){
             if(this.score > in.score)
                 return this;
             if(this.score == in.score)
@@ -30,9 +76,9 @@ public class StudentPlayer extends Player{
                 if(closerToMiddle(this.collum, collum))
                     return this;
                 else
-                    return new algResult(collum, in.score);
+                    return new AlgResult(collum, in.score);
             }
-            return new algResult(collum, in.score);
+            return new AlgResult(collum, in.score);
         }
         public int max(int in){
             if(this.score >= in)
@@ -40,7 +86,7 @@ public class StudentPlayer extends Player{
             return in;
         }
 
-        public algResult min(algResult in, int collum){
+        public AlgResult min(AlgResult in, int collum){
             if(this.score < in.score)
                 return this;
             if(this.score == in.score)
@@ -48,9 +94,9 @@ public class StudentPlayer extends Player{
                 if(closerToMiddle(this.collum, collum))
                     return this;
                 else
-                    return new algResult(collum, in.score);
+                    return new AlgResult(collum, in.score);
             }
-            return new algResult(collum, in.score);
+            return new AlgResult(collum, in.score);
         }
         public int min(int in){
             if(this.score <= in)
@@ -59,21 +105,23 @@ public class StudentPlayer extends Player{
         }
     }
 
-    public algResult minimax(Board board, int depth, int alpha, int beta, boolean maxPlayer){
+    public HashMap<Integer, List<TranspositionTable>> transpositiontable;
+
+    public AlgResult minimax(Board board, int depth, int alpha, int beta, boolean maxPlayer){
         if(depth == 0 || board.gameEnded())
         {
-            return new algResult(-1, board, this.playerIndex);
+            return new AlgResult(-1, board, this.playerIndex);
         }
 
         if(maxPlayer)
         {
-            algResult maxResult = new algResult(-1, -100);
+            AlgResult maxResult = new AlgResult(-1, -100);
             for(int i = 0; i < 7; i++)
             {
                 Board newBoard = new Board(board);
                 if(newBoard.stepIsValid(i)) {
                     newBoard.step(this.playerIndex, i);
-                    algResult result = minimax(newBoard, depth - 1, alpha, beta, false);
+                    AlgResult result = minimax(newBoard, depth - 1, alpha, beta, false);
                     maxResult = maxResult.max(result, i);
                     alpha = result.max(alpha);
                     if (beta <= alpha)
@@ -85,13 +133,13 @@ public class StudentPlayer extends Player{
 
         else
         {
-            algResult minResult = new algResult(-1, 100);
+            AlgResult minResult = new AlgResult(-1, 100);
             for(int i = 0; i < 7; i++)
             {
                 Board newBoard = new Board(board);
                 if(newBoard.stepIsValid(i)) {
                     newBoard.step(getOtherPlayerIndex(), i);
-                    algResult result = minimax(newBoard, depth - 1, alpha, beta, true);
+                    AlgResult result = minimax(newBoard, depth - 1, alpha, beta, true);
                     minResult = minResult.min(result, i);
                     beta = result.min(beta);
                     if (beta <= alpha)
@@ -116,7 +164,13 @@ public class StudentPlayer extends Player{
 
     @Override
     public int step(Board board) {
-        algResult res = minimax(board, 12, -100, 100, true);
+        transpositiontable = new HashMap<Integer, List<TranspositionTable>>();
+        for(int i = 0; i < MAX_DEPTH; i++)
+        {
+            transpositiontable.put(i,new ArrayList<TranspositionTable>());
+        }
+
+        AlgResult res = minimax(board, MAX_DEPTH, -100, 100, true);
         return res.collum;
     }
 }
