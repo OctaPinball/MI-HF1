@@ -230,6 +230,8 @@ public class StudentPlayer extends Player{
 
     public StudentPlayer(int playerIndex, int[] boardSize, int nToConnect) {
         super(playerIndex, boardSize, nToConnect);
+        Random random = new Random(System.currentTimeMillis());
+        randomnum = random.nextInt(2);
         //modle = new MiniMaxAlphaBetaPruningPlayer(int playerIndex, int[] boardSize, int nToConnect, 7);
     }
 
@@ -239,12 +241,10 @@ public class StudentPlayer extends Player{
         return 1;
     }
 
-
+public int randomnum;
 
     @Override
     public int step(Board board) {
-        Random random = new Random();
-        int randomnum = random.nextInt(2);
         algResult res = null;
         if(randomnum == 1)
             res = minimax(board, 11, -1000, 1000, true);
