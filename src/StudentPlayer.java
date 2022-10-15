@@ -1,3 +1,6 @@
+import static java.lang.Math.random;
+import java.util.Random;
+
 public class StudentPlayer extends Player{
 
     final static int MAX_COLUMN = 7;
@@ -223,8 +226,11 @@ public class StudentPlayer extends Player{
 
     public static int playerIndex = 2;
 
+    //public MiniMaxAlphaBetaPruningPlayer modle;
+
     public StudentPlayer(int playerIndex, int[] boardSize, int nToConnect) {
         super(playerIndex, boardSize, nToConnect);
+        //modle = new MiniMaxAlphaBetaPruningPlayer(int playerIndex, int[] boardSize, int nToConnect, 7);
     }
 
     public int getOtherPlayerIndex(){
@@ -237,7 +243,14 @@ public class StudentPlayer extends Player{
 
     @Override
     public int step(Board board) {
-        algResult res = minimax(board, 10, -1000, 1000, true);
+        Random random = new Random();
+        int randomnum = random.nextInt(2);
+        algResult res = null;
+        if(randomnum == 1)
+            res = minimax(board, 11, -1000, 1000, true);
+        if(randomnum == 0)
+            res = minimax(board, 10, -1000, 1000, true);
+        //return modle.step(board);
         return res.column;
     }
 }
