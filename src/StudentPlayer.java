@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class StudentPlayer extends Player{
 
-    public static final int MAX_DEPTH = 12;
+    public static final int MAX_DEPTH = 16;
 
     public class TranspositionTable{
         public int[][] table = new int[7][6];
@@ -16,8 +16,13 @@ public class StudentPlayer extends Player{
             this.table = in.table.clone();
         }
 
+        public TranspositionTable(){
+            this.score = 0;
+            this.table = new int[7][6];
+        }
+
         public void Put(int collum, int player){
-            for(int i = 0; i < 7; i++)
+            for(int i = 0; i < 6; i++)
             {
                 if(table[collum][i] == 0)
                 {
@@ -107,7 +112,23 @@ public class StudentPlayer extends Player{
 
     public HashMap<Integer, List<TranspositionTable>> transpositiontable;
 
-    public AlgResult minimax(Board board, int depth, int alpha, int beta, boolean maxPlayer){
+    public TranspositionTable tableExist(TranspositionTable table, int depth){
+        List<TranspositionTable> tablecollection = transpositiontable.get(depth);
+        if(tablecollection == null) {
+            tablecollection = new ArrayList<TranspositionTable>();
+            return null;
+        }
+        for(TranspositionTable t : tablecollection)
+        {
+            if(table.Equals(t))
+            {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public AlgResult minimax(Board board, int depth, int alpha, int beta, boolean maxPlayer, TranspositionTable table){
         if(depth == 0 || board.gameEnded())
         {
             return new AlgResult(-1, board, this.playerIndex);
@@ -121,7 +142,22 @@ public class StudentPlayer extends Player{
                 Board newBoard = new Board(board);
                 if(newBoard.stepIsValid(i)) {
                     newBoard.step(this.playerIndex, i);
-                    AlgResult result = minimax(newBoard, depth - 1, alpha, beta, false);
+
+                    TranspositionTable newtable = new TranspositionTable(table);
+                    newtable.Put(i, this.playerIndex);
+
+                    AlgResult result;
+                    TranspositionTable tablepair = tableExist(newtable, depth);
+                    if(tablepair != null) {
+                        result = new AlgResult(i, tablepair.score);
+                    }
+                    else {
+                        result = minimax(newBoard, depth - 1, alpha, beta, false, newtable);
+                        newtable.score = result.score;
+                        transpositiontable.get(i).add(newtable);
+                    }
+
+
                     maxResult = maxResult.max(result, i);
                     alpha = result.max(alpha);
                     if (beta <= alpha)
@@ -139,7 +175,21 @@ public class StudentPlayer extends Player{
                 Board newBoard = new Board(board);
                 if(newBoard.stepIsValid(i)) {
                     newBoard.step(getOtherPlayerIndex(), i);
-                    AlgResult result = minimax(newBoard, depth - 1, alpha, beta, true);
+
+                    TranspositionTable newtable = new TranspositionTable(table);
+                    newtable.Put(i, this.playerIndex);
+
+                    AlgResult result;
+                    TranspositionTable tablepair = tableExist(newtable, depth);
+                    if(tablepair != null) {
+                        result = new AlgResult(i, tablepair.score);
+                    }
+                    else {
+                        result = minimax(newBoard, depth - 1, alpha, beta, true, newtable);
+                        newtable.score = result.score;
+                        transpositiontable.get(i).add(newtable);
+                    }
+
                     minResult = minResult.min(result, i);
                     beta = result.min(beta);
                     if (beta <= alpha)
@@ -170,7 +220,9 @@ public class StudentPlayer extends Player{
             transpositiontable.put(i,new ArrayList<TranspositionTable>());
         }
 
-        AlgResult res = minimax(board, MAX_DEPTH, -100, 100, true);
+        TranspositionTable table = new TranspositionTable();
+
+        AlgResult res = minimax(board, MAX_DEPTH, -100, 100, true, table);
         return res.collum;
     }
 }
