@@ -6,6 +6,7 @@ import java.util.Map;
 public class StudentPlayer extends Player{
 
     public static final int MAX_DEPTH = 16;
+    public static final int PREFERED_COLLUM = 2;
 
     public class TranspositionTable{
         public int[][] table = new int[7][6];
@@ -70,7 +71,7 @@ public class StudentPlayer extends Player{
         }
 
         public boolean closerToMiddle(int a, int b){
-            return Math.abs(0 - a) <= Math.abs(0 - b);
+            return Math.abs(PREFERED_COLLUM - a) <= Math.abs(PREFERED_COLLUM - b);
         }
 
         public AlgResult max(AlgResult in, int collum){
