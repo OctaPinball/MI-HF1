@@ -7,11 +7,12 @@ public class StudentPlayer extends Player{
     final static int MAX_ROW = 6;
 
 
-    final static int MIDDLE_SCORE = 3;
-    final static int WINNING_SCORE = 100;
+    final static int MIDDLE_SCORE = 5;
+    final static int WINNING_SCORE = 10000;
     final static int THREE_SCORE = 5;
     final static int TWO_SCORE = 2;
-    final static int OP_THREE_SCORE = -4;
+    final static int OP_TWO_SCORE = -2;
+    final static int OP_THREE_SCORE = -100;
 
     public class algResult{
         public int column;
@@ -82,7 +83,8 @@ public class StudentPlayer extends Player{
                 score += THREE_SCORE;
             if(countFour(four, StudentPlayer.playerIndex) == 2 && countFour(four, 0) == 2)
                 score += TWO_SCORE;
-
+            if(countFour(four, getOtherPlayerIndex(StudentPlayer.playerIndex)) == 2 && countFour(four, 0) == 2)
+                score += OP_TWO_SCORE;
             if(countFour(four, getOtherPlayerIndex(StudentPlayer.playerIndex)) == 3 && countFour(four, 0) == 1)
                 score += OP_THREE_SCORE;
 
@@ -189,7 +191,7 @@ public class StudentPlayer extends Player{
 
         if(maxPlayer)
         {
-            algResult maxResult = new algResult(-1, -1000);
+            algResult maxResult = new algResult(-1, -10000);
             for(int i = 0; i < 7; i++)
             {
                 Board newBoard = new Board(board);
@@ -207,7 +209,7 @@ public class StudentPlayer extends Player{
 
         else
         {
-            algResult minResult = new algResult(-1, 1000);
+            algResult minResult = new algResult(-1, 10000);
             for(int i = 0; i < 7; i++)
             {
                 Board newBoard = new Board(board);
@@ -226,13 +228,9 @@ public class StudentPlayer extends Player{
 
     public static int playerIndex = 2;
 
-    //public MiniMaxAlphaBetaPruningPlayer modle;
 
     public StudentPlayer(int playerIndex, int[] boardSize, int nToConnect) {
         super(playerIndex, boardSize, nToConnect);
-        Random random = new Random(System.currentTimeMillis());
-        randomnum = random.nextInt(2);
-        //modle = new MiniMaxAlphaBetaPruningPlayer(int playerIndex, int[] boardSize, int nToConnect, 7);
     }
 
     public int getOtherPlayerIndex(){
@@ -241,16 +239,9 @@ public class StudentPlayer extends Player{
         return 1;
     }
 
-public int randomnum;
-
     @Override
     public int step(Board board) {
-        algResult res = null;
-        if(randomnum == 1)
-            res = minimax(board, 11, -1000, 1000, true);
-        if(randomnum == 0)
-            res = minimax(board, 10, -1000, 1000, true);
-        //return modle.step(board);
+        algResult res = minimax(board, 6, -1000, 1000, true);
         return res.column;
     }
 }
